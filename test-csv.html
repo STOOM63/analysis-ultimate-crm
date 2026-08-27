@@ -1,0 +1,11 @@
+<!doctype html><html><body><pre id="out">RUNNING</pre>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.6.0/papaparse.min.js"></script>
+<script src="js/constants.js"></script><script src="js/utils.js"></script><script src="js/importer.js"></script>
+<script>
+(async()=>{try{
+ const r=await fetch('/Ventes(1).csv'); const b=await r.blob(); const f=new File([b],'Ventes(1).csv',{type:'text/csv'});
+ const res=await AU.importer.parseFile('ventes',f,()=>{});
+ document.getElementById('out').textContent=JSON.stringify({ok:res.ok,rowCount:res.rowCount,tx:res.report.metrics.transactionCount,totalTTC:res.report.metrics.totalTTC,errors:res.report.errors},null,2);
+ document.title=res.ok?'PASS':'FAIL';
+}catch(e){document.getElementById('out').textContent='ERROR '+(e.stack||e); document.title='ERROR';}})();
+</script></body></html>

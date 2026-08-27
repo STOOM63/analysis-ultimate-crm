@@ -1,0 +1,18 @@
+Analysis Ultimate — Basalte-Web
+Version: 3.1.0 ULTIMATE GEO API SENTINEL
+Build: 2026-08-27
+
+Cette version conserve intégralement la v3.0 et ajoute :
+- Connexion prioritaire à l’API Explore v2.1 de Clermont Auvergne Métropole.
+- Détection automatique du catalogue Open Data et des jeux mobilité/travaux/voirie.
+- Contrôle de santé, latence, disponibilité et fraîcheur des sources.
+- Lecture API du stationnement métropolitain en temps réel.
+- Vérification des datasets Base Adresse Locale et axes de voie (aucune adresse client envoyée).
+- Fallback automatique vers les pages officielles travaux.
+- Last-known-good : conservation du dernier contexte valide en cas de panne.
+- Écriture transactionnelle + validation avant publication.
+- Historique public externe séparé des données clients.
+- Clermont API Sentinel visible dans Geo Intelligence et Autopilot.
+- 4 synchronisations automatiques par jour + déclenchement manuel GitHub Actions.
+
+Aucune extraction TGM ni donnée client n’est incluse ou envoyée par le connecteur public.
