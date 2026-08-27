@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0c1117">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none';">
+  <meta name="description" content="Analysis Ultimate — moteur d'analyse commerciale local conçu par Basalte-Web.">
+  <title>Analysis Ultimate — Basalte-Web</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+  <div id="fatal" class="fatal hidden"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">AU</div>
+      <div>
+        <strong>Analysis Ultimate</strong>
+        <span>Basalte-Web · Intelligence commerciale locale</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="dataRangeBadge" class="pill muted">Aucune donnée</span>
+      <button id="openImportBtn" class="btn btn-primary">Importer / actualiser</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <nav id="mainNav">
+        <button class="nav-item active" data-view="dashboard"><span>◫</span>Vue générale</button>
+        <button class="nav-item" data-view="clients"><span>◎</span>Clients 360°</button>
+        <button class="nav-item" data-view="alerts"><span>!</span>Alertes & opportunités</button>
+        <button class="nav-item" data-view="fidelity"><span>↻</span>Fidélisation & zones</button>
+        <button class="nav-item" data-view="products"><span>◇</span>Produits</button>
+        <button class="nav-item" data-view="rayons"><span>▦</span>Rayons & familles</button>
+        <button class="nav-item" data-view="stock"><span>▤</span>Stock</button>
+        <button class="nav-item" data-view="salesforce"><span>♙</span>Vendeurs & remises</button>
+        <button class="nav-item" data-view="calendar"><span>◷</span>Périodes & vacances</button>
+        <button class="nav-item" data-view="associations"><span>⌘</span>Paniers associés</button>
+        <button class="nav-item" data-view="compare"><span>⇄</span>Comparateur</button>
+        <button class="nav-item" data-view="quality"><span>✓</span>Qualité & traçabilité</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-note"><strong>Mode local</strong><br>Les données importées restent dans ce navigateur.</div>
+        <button id="clearDataBtn" class="btn btn-ghost btn-small">Effacer les données locales</button>
+        <small>Analysis Ultimate <span id="versionLabel"></span></small>
+      </div>
+    </aside>
+
+    <main id="mainContent" class="main-content">
+      <section class="empty-state" id="emptyState">
+        <div class="empty-logo">AU</div>
+        <h1>Analysis Ultimate</h1>
+        <p>Charge les trois extractions TGM pour lancer le contrôle d’intégrité, le croisement et les analyses.</p>
+        <button class="btn btn-primary btn-large" id="emptyImportBtn">Démarrer l’import</button>
+        <p class="small-muted">Clients.xlsx · Ventes.csv · Catalogue.xlsx — suffixes numériques acceptés.</p>
+      </section>
+      <div id="viewRoot" class="hidden"></div>
+    </main>
+  </div>
+
+  <div id="importModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card import-modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">IMPORT TGM SÉCURISÉ</span>
+          <h2 id="importTitle">Charger les données</h2>
+          <p>Chaque source est validée séparément. Le croisement n’est lancé qu’après validation des trois.</p>
+        </div>
+        <button class="icon-btn" data-close-modal aria-label="Fermer">×</button>
+      </div>
+
+      <div class="import-grid">
+        <article class="import-card" data-import-card="clients">
+          <div class="import-step">1</div>
+          <h3>Base clients</h3>
+          <p>Fichier <strong>clients</strong>, avec ou sans suffixe numérique entre parenthèses.</p>
+          <label class="file-button">Sélectionner Clients.xlsx<input id="clientsFile" type="file" accept=".xlsx,.xls"></label>
+          <div class="progress"><i id="clientsProgress"></i></div>
+          <div id="clientsStatus" class="import-status neutral">En attente</div>
+        </article>
+
+        <article class="import-card" data-import-card="ventes">
+          <div class="import-step">2</div>
+          <h3>Ventes</h3>
+          <p>Un ou plusieurs fichiers <strong>ventes.csv</strong>. Les chevauchements exacts seront dédupliqués entre fichiers.</p>
+          <label class="file-button">Sélectionner Ventes.csv<input id="ventesFile" type="file" accept=".csv" multiple></label>
+          <div class="progress"><i id="ventesProgress"></i></div>
+          <div id="ventesStatus" class="import-status neutral">En attente</div>
+        </article>
+
+        <article class="import-card" data-import-card="catalogue">
+          <div class="import-step">3</div>
+          <h3>Catalogue / stock</h3>
+          <p>Fichier <strong>catalogue</strong>, avec ou sans suffixe numérique entre parenthèses.</p>
+          <label class="file-button">Sélectionner Catalogue.xlsx<input id="catalogueFile" type="file" accept=".xlsx,.xls"></label>
+          <div class="progress"><i id="catalogueProgress"></i></div>
+          <div id="catalogueStatus" class="import-status neutral">En attente</div>
+        </article>
+      </div>
+
+      <div id="crossStatus" class="cross-status">
+        <div class="cross-icon">⧉</div>
+        <div><strong>Croisement non lancé</strong><p>Validation des trois sources nécessaire.</p></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="privacy-inline">🔒 Traitement local : aucune ligne client n’est envoyée à Basalte-Web, GitHub ou un serveur d’analyse.</div>
+        <button id="runAnalysisBtn" class="btn btn-primary btn-large" disabled>Lancer le croisement</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-close-detail></div>
+    <div class="modal-card detail-card">
+      <button class="icon-btn detail-close" data-close-detail aria-label="Fermer">×</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <div id="toastRoot" class="toast-root"></div>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.6.0/papaparse.min.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/importer.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
